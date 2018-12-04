@@ -1,20 +1,27 @@
 frequency = 0
 
-found = False
-seen = set()
+# Option 1: build tree, compare each path to every other path looking where difference is one
+# Option 2: sort list and check next - won't work as need to check more than just next ones...
+# Option 3 (o^2): check every against every other...
 
-while not found:
-    with open("input.txt") as f:
-        for line in f:
-            seen.add(frequency)
-            if line[0] == '-':
-                frequency -= int(line[1:])
+with open("input.txt") as f:
+    count2 = 0
+    count3 = 0
+    for line in f:
+        m = {}
+        for c in line:
+            if c in m:
+                m[c] = m[c] + 1
             else:
-                frequency += int(line[1:])
-                
-            if frequency in seen:
-                print(frequency)
-                found = True
+                m[c] = 1
+
+        for _, v in m.items():
+            if v == 2:
+                count2 += 1
+                break
+        for _, v in m.items():
+            if v == 3:
+                count3 += 1
                 break
 
-
+print(count2 * count3)
