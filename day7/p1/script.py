@@ -9,17 +9,18 @@ def parse_line(line):
     return m.group(1), m.group(2)
 
 def get_roots(nodes):
-    return [nodes[n] for n in nodes if not nodes[n].deps]
+    return [n for n in sorted(nodes.keys()) if nodes[n].parent is None]
 
 class Node:
 
     def __init__(self, c):
         self.c = c
-        self.deps = []
+        self.children = []
         self.seen = False
+        self.parent = None
 
     def get_next(self, nodes):
-        return [nodes[d] for d in self.deps if not nodes[d].seen]
+        return [d for d in sorted(self.children) if not nodes[d].seen]
 
 nodes = {}
 for c in ascii_uppercase:
@@ -32,15 +33,16 @@ with open("../input.txt") as f:
     for line in f:
         first, second = parse_line(line)
 
-        nodes[second].deps.append(first)
+        nodes[first].children.append(second)
+        nodes[second].parent = first
 
     queue = get_roots(nodes)
     while queue:
-        node = queue.pop(0)
-        print(node.c)
-        node.seen = True
-        result += node.c
-        for node in node.get_next(nodes):
-            queue.append(node)
+        c = queue.pop(0)
+        if not nodes[c].seen:
+            nodes[c].seen = True
+            result += c
+            for node in nodes[c].get_next(nodes):
+                queue.append(node)
 
 print result
