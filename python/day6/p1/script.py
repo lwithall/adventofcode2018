@@ -1,59 +1,69 @@
 
-def get_min(point, points):
+import operator
 
-    x_min = (None, None)
-    y_min = (None, None)
-    x_max = (None, None)
-    y_max = (None, None)
+elements_upper = "ABCDEFGHIJKLMNOP"
+elements = "abcdefghijklmnop"
 
-    for p in points:
-        if p[0] < point[0] and x_min[0] is None or p[0] < x_min[0]:
-            x_min = p
-        if p[0] > point[0] and x_max[0] is None or p[0] > x_min[0]:
-            x_max = p
-        if p[1] < point[1] and y_min[1] is None or p[1] < y_min[1]:
-            y_min = p
-        if p[1] > point[1] and y_max[1] is None or p[1] > y_min[1]:
-            y_max = p
+def dist(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
 
-    return x_min, y_min, x_max, y_max
+def getClosest(x, y, points):
 
+    distances = [(dist(x, y, points[i][0], points[i][1]), i) for i in range(len(points))]
 
-def distance(x, y):
-    return abs(x[0] - y[0]) + abs(x[1] - y[1])
+    sorted_distances = sorted(distances, key=lambda x: x[0])
 
-def get_size(point, x_min, y_min, x_max, y_max):
+    if sorted_distances[0][0] == sorted_distances[1][0]:
+        return -1
 
-    print(x_min, y_min, x_max, y_max)
+    return sorted_distances[0][1]
 
-    largest = 0
-    for i in range(x_min[0], x_max[0]):
-        for j in range(y_min[0], y_max[0]):
-            pt = (i, j)
-            dist = distance(point, pt)
-            if distance(y_min, pt) > dist and distance(y_max, pt) > dist and distance(x_min, pt) > dist and distance(x_max, pt) > dist:
-                largest += 1
-    return largest
 
 with open("../input.txt") as f:
 
+    # Load points
     points = []
     for line in f:
-        elements = line.split(', ')
-        points.append((int(elements[0]), int(elements[1])))
+        l = line.split(', ')
+        points.append((int(l[0]), int(l[1])))
 
-    largest = 0
+    x_min = points[0][0]
+    x_max = points[0][0]
+    y_min = points[0][1]
+    y_max = points[0][1]
+    for p in points:
+        x_min = min(x_min, p[0])
+        x_max = max(x_max, p[0])
+        y_min = min(y_min, p[1])
+        y_max = max(y_max, p[1])
 
-    for point in points:
-        x_min, y_min, x_max, y_max = get_min(point, points)
+    counts = {}
+    for point in range(len(points)):
+        counts[point] = 0
 
-        if x_min[0] is None or x_max[0] is None or y_max[1] is None or y_min[1] is None:
-            print("Skipping " + str(point))
-            continue
-        print(point)
-        print(x_min, x_max, y_min, y_max)
-        size = get_size(point, x_min, y_min, x_max, y_max)
-        print(size)
-        largest = max(largest, size)
+    lines = []
+    print("  0123456789 ")
+    for y in range(y_min-1, y_max+1):
+        line = str(y) + ' '
+        for x in range(x_min-1, x_max+2):
+            i = getClosest(x, y, points)
+            if i != -1:
+                counts[i] += 1
 
-    print(largest)
+            if (x, y) in points:
+                line += str(elements_upper[points.index((x, y))])
+            elif i != -1:
+                line += str(elements[i])
+            else:
+                line += '.'
+        print(line)
+
+    def isFinite(point):
+        return x_min < point[0] < x_max and y_min < point[1] < y_max
+
+    max_area = -1
+    for c in range(len(counts)):
+        if isFinite(points[c]):
+            max_area = max(max_area, counts[c])
+    print(counts)
+    print(max_area)
