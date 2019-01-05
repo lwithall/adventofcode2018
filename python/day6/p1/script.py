@@ -8,16 +8,12 @@ def dist(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
 def getClosest(x, y, points):
-
     distances = [(dist(x, y, points[i][0], points[i][1]), i) for i in range(len(points))]
-
     sorted_distances = sorted(distances, key=lambda x: x[0])
 
     if sorted_distances[0][0] == sorted_distances[1][0]:
         return -1
-
     return sorted_distances[0][1]
-
 
 with open("../input.txt") as f:
 
@@ -42,21 +38,12 @@ with open("../input.txt") as f:
         counts[point] = 0
 
     lines = []
-    print("  0123456789 ")
     for y in range(y_min-1, y_max+1):
         line = str(y) + ' '
-        for x in range(x_min-1, x_max+2):
+        for x in range(x_min-1, x_max+1):
             i = getClosest(x, y, points)
             if i != -1:
                 counts[i] += 1
-
-            if (x, y) in points:
-                line += str(elements_upper[points.index((x, y))])
-            elif i != -1:
-                line += str(elements[i])
-            else:
-                line += '.'
-        print(line)
 
     def isFinite(point):
         return x_min < point[0] < x_max and y_min < point[1] < y_max
